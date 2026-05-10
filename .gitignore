@@ -1,0 +1,24 @@
+# XcodeGen-generated; regenerate with `xcodegen generate`
+*.xcodeproj/
+*.xcworkspace/
+
+# Xcode build artefacts
+DerivedData/
+build/
+.build/
+*.xcuserstate
+xcuserdata/
+
+# SwiftPM
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Internal design notes (not part of the public project)
+design-bundle/
