@@ -1,6 +1,6 @@
 # NeonFocus
 
-A tiny macOS menu-bar utility that draws a pulsing hot-pink neon halo around
+A tiny macOS menu-bar utility that draws a configurable neon halo around
 whichever **Apple Terminal** window currently has keyboard focus.
 
 ```
@@ -9,12 +9,13 @@ whichever **Apple Terminal** window currently has keyboard focus.
 │ npm dev  │  │ vim      │  │ tail -f  │
 └──────────┘  └━━━━━━━━━━┘  └──────────┘
                   ▲
-                  └── hot-pink pulsing halo around the focused one
+                  └── pulsing neon halo around the focused one
 ```
 
 ## Status
 
-v0.1 — Apple Terminal only. Single hardcoded variation.
+v0.1.0 — Apple Terminal support with menu-bar controls for color, thickness,
+pulse speed, glow intensity, and focus-burst vibration.
 
 ## Prerequisites
 
@@ -42,6 +43,12 @@ open build/Debug/NeonFocus.app
 The Xcode project is **not committed**; regenerate it with `xcodegen generate`
 any time you change `project.yml`.
 
+Run the unit tests with:
+
+```bash
+xcodebuild -project NeonFocus.xcodeproj -scheme NeonFocus -destination "platform=macOS,arch=$(uname -m)" test
+```
+
 ## First-run permission
 
 NeonFocus needs **Accessibility** permission to read the focused Terminal
@@ -53,13 +60,25 @@ No screen-recording or input-monitoring permissions are required.
 
 ## What it does
 
-- Lives in the menu bar as a `circle.dashed` icon. Menu: **Enable / Quit**.
+- Lives in the menu bar as a `circle.dashed` icon.
+- Provides an enable toggle, overlay style submenus, and **Quit NeonFocus**.
 - When **Apple Terminal** is the frontmost app, it watches focus changes via
   the Accessibility API (`kAXFocusedWindowChangedNotification`,
   `kAXMovedNotification`, `kAXResizedNotification`).
 - A transparent click-through `NSPanel` follows the focused window's frame and
-  renders a 1.6s ease-in-out neon-pink pulse via Core Animation.
+  renders a Core Animation neon pulse with an outer edge-fade glow.
+- Plays a short focus-burst vibration when focus moves to a different Terminal
+  window.
+- Persists the enable state and overlay settings in `UserDefaults`.
 - When you `⌘-Tab` to anything other than Terminal, the overlay hides.
+
+## Menu settings
+
+- **Color:** Hot Pink, Electric Cyan, Acid Green
+- **Thickness:** Slim, Regular, Bold
+- **Pulse Speed:** Slow, Normal, Fast
+- **Glow:** Subtle, Bright, Vivid
+- **Vibration:** Focus Burst, Off
 
 ## Architecture (one screen)
 
@@ -67,19 +86,16 @@ No screen-recording or input-monitoring permissions are required.
 NeonFocusApp ──► AppDelegate ──► FocusCoordinator ──┬── ActiveAppMonitor ──► NSWorkspace
                                                     ├── AccessibilityPermissions
                                                     ├── AXFocusTracker ──► AXObserver
+                                                    ├── NeonFocusSettingsStore ──► UserDefaults
                                                     ├── OverlayController ──► OverlayPanel
-                                                    │                         └── NeonPulseView
+                                                    │                         └── NeonPulseView ──► NeonPulseAnimationSpec
                                                     └── StatusMenuController ──► NSStatusItem
 ```
 
 ## Known limitations
 
-- **Apple Terminal only.** iTerm / Ghostty / Warp can be added by extending
-  `ActiveAppMonitor.terminalBundleID` to a set; left out of v0.1 by design.
-- **No transition burst.** The wireframe's "focus-handoff burst" is not yet
-  implemented — focus changes snap.
-- **No preferences.** Color, pulse speed, and thickness are hardcoded.
+- **Apple Terminal only.** iTerm, Ghostty, and Warp support would need bundle-ID
+  matching plus AX behavior validation for each app.
 - **Not signed.** Local debug builds run under ad-hoc signing; distribution
   via Homebrew cask requires a Developer ID + notarization (see
   `design-bundle/chats/chat1.md` for the path).
-
