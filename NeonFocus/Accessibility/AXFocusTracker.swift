@@ -1,7 +1,7 @@
 import AppKit
 import ApplicationServices
 
-/// Watches a single Terminal pid for focused-window changes, plus move/resize
+/// Watches a single app pid for focused-window changes, plus move/resize
 /// on the currently-focused window. Emits the AppKit-converted frame whenever
 /// it changes, or `nil` if no window is currently focused.
 @MainActor

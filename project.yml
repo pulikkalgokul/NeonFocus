@@ -45,7 +45,7 @@ targets:
         LSMinimumSystemVersion: "$(MACOSX_DEPLOYMENT_TARGET)"
         LSUIElement: true
         NSHumanReadableCopyright: ""
-        NSAppleEventsUsageDescription: NeonFocus needs to read the focused Terminal window's frame to draw the overlay around it.
+        NSAppleEventsUsageDescription: NeonFocus needs to read the focused terminal window's frame to draw the overlay around it.
     entitlements:
       path: NeonFocus/NeonFocus.entitlements
       properties:
@@ -65,6 +65,7 @@ targets:
     platform: macOS
     sources:
       - path: NeonFocus/Settings/NeonFocusSettings.swift
+      - path: NeonFocus/ActiveApp/ActiveAppMonitor.swift
       - path: NeonFocus/Overlay/NeonPulseAnimationSpec.swift
       - path: NeonFocus/Overlay/NeonPulseView.swift
       - path: NeonFocus/Menu/StatusMenuController.swift

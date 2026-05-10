@@ -1,7 +1,7 @@
 import AppKit
 import QuartzCore
 
-/// Draws the Neon Pulse Border. The view is sized to the Terminal window's frame
+/// Draws the Neon Pulse Border. The view is sized to the tracked window's frame
 /// inflated by `inset` on every side so the outer halo has room to render
 /// without being clipped by the panel bounds.
 @MainActor

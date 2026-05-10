@@ -2,11 +2,14 @@ import AppKit
 
 @MainActor
 final class ActiveAppMonitor {
-    static let terminalBundleID = "com.apple.Terminal"
-
     var onChange: ((Bool, pid_t?) -> Void)?
+    var trackedTerminalApps: Set<NeonFocusSettings.TerminalApp>
 
     private var observers: [NSObjectProtocol] = []
+
+    init(trackedTerminalApps: Set<NeonFocusSettings.TerminalApp> = NeonFocusSettings.defaultTrackedTerminalApps) {
+        self.trackedTerminalApps = trackedTerminalApps
+    }
 
     func start() {
         let center = NSWorkspace.shared.notificationCenter
@@ -56,8 +59,18 @@ final class ActiveAppMonitor {
         observers.removeAll()
     }
 
+    #if DEBUG
+    func debugReport(bundleID: String?, pid: pid_t?) {
+        report(bundleID: bundleID, pid: pid)
+    }
+    #endif
+
     private func report(bundleID: String?, pid: pid_t?) {
-        let isTerminal = (bundleID == Self.terminalBundleID)
-        onChange?(isTerminal, isTerminal ? pid : nil)
+        let isTrackedTerminal = bundleID.map(trackedBundleIDs.contains) ?? false
+        onChange?(isTrackedTerminal, isTrackedTerminal ? pid : nil)
+    }
+
+    private var trackedBundleIDs: Set<String> {
+        Set(trackedTerminalApps.map(\.rawValue))
     }
 }

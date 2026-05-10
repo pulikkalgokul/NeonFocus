@@ -66,4 +66,46 @@ struct StatusMenuControllerTests {
         #expect(receivedSettings?.glowIntensity == .vivid)
         #expect(vividItem.state == .on)
     }
+
+    @Test
+    func terminalAppsMenuListsCuratedTerminalAppsOnly() throws {
+        let sut = StatusMenuController()
+        defer { sut.uninstall() }
+        sut.debugInstallMenu(enabled: true, settings: .default)
+
+        let terminalAppsMenu = try #require(
+            sut.debugMenu?
+                .item(withTitle: "Terminal Apps")?
+                .submenu
+        )
+        let menuTitles = terminalAppsMenu.items.map(\.title)
+        let expectedTitles = NeonFocusSettings.TerminalApp.allCases.map(\.title)
+
+        #expect(menuTitles == expectedTitles)
+        #expect(menuTitles.contains("Finder") == false)
+        #expect(menuTitles.contains("Safari") == false)
+    }
+
+    @Test
+    func terminalAppsMenuTogglesTrackedAppAndCheckmark() throws {
+        let sut = StatusMenuController()
+        defer { sut.uninstall() }
+        var receivedSettings: NeonFocusSettings?
+        sut.onSettingsChanged = { receivedSettings = $0 }
+        sut.debugInstallMenu(enabled: true, settings: .default)
+
+        let ghosttyItem = try #require(
+            sut.debugMenu?
+                .item(withTitle: "Terminal Apps")?
+                .submenu?
+                .item(withTitle: NeonFocusSettings.TerminalApp.ghostty.title)
+        )
+
+        #expect(ghosttyItem.state == .off)
+
+        sut.debugPerformAction(for: ghosttyItem)
+
+        #expect(receivedSettings?.trackedTerminalApps.contains(.ghostty) == true)
+        #expect(ghosttyItem.state == .on)
+    }
 }

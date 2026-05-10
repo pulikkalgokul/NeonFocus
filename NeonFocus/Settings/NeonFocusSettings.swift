@@ -202,26 +202,54 @@ struct NeonFocusSettings: Equatable {
         }
     }
 
+    enum TerminalApp: String, CaseIterable {
+        case appleTerminal = "com.apple.Terminal"
+        case iterm2 = "com.googlecode.iterm2"
+        case ghostty = "com.mitchellh.ghostty"
+        case warp = "dev.warp.Warp-Stable"
+        case warpPreview = "dev.warp.Warp-Preview"
+        case wezTerm = "com.github.wez.wezterm"
+        case kitty = "net.kovidgoyal.kitty"
+        case alacritty = "org.alacritty"
+
+        var title: String {
+            switch self {
+            case .appleTerminal: "Apple Terminal"
+            case .iterm2: "iTerm2"
+            case .ghostty: "Ghostty"
+            case .warp: "Warp"
+            case .warpPreview: "Warp Preview"
+            case .wezTerm: "WezTerm"
+            case .kitty: "kitty"
+            case .alacritty: "Alacritty"
+            }
+        }
+    }
+
     static let `default` = NeonFocusSettings()
+    static let defaultTrackedTerminalApps: Set<TerminalApp> = [.appleTerminal]
 
     var color: Color
     var thickness: Thickness
     var pulseSpeed: PulseSpeed
     var glowIntensity: GlowIntensity
     var vibration: Vibration
+    var trackedTerminalApps: Set<TerminalApp>
 
     init(
         color: Color = .hotPink,
         thickness: Thickness = .regular,
         pulseSpeed: PulseSpeed = .normal,
         glowIntensity: GlowIntensity = .bright,
-        vibration: Vibration = .focusBurst
+        vibration: Vibration = .focusBurst,
+        trackedTerminalApps: Set<TerminalApp> = Self.defaultTrackedTerminalApps
     ) {
         self.color = color
         self.thickness = thickness
         self.pulseSpeed = pulseSpeed
         self.glowIntensity = glowIntensity
         self.vibration = vibration
+        self.trackedTerminalApps = trackedTerminalApps
     }
 }
 
@@ -232,6 +260,7 @@ struct NeonFocusSettingsStore {
         static let pulseSpeed = "NeonFocus.settings.pulseSpeed"
         static let glowIntensity = "NeonFocus.settings.glowIntensity"
         static let vibration = "NeonFocus.settings.vibration"
+        static let trackedTerminalApps = "NeonFocus.settings.trackedTerminalApps"
     }
 
     private let defaults: UserDefaults
@@ -247,7 +276,8 @@ struct NeonFocusSettingsStore {
             thickness: load(NeonFocusSettings.Thickness.self, key: Key.thickness) ?? fallback.thickness,
             pulseSpeed: load(NeonFocusSettings.PulseSpeed.self, key: Key.pulseSpeed) ?? fallback.pulseSpeed,
             glowIntensity: load(NeonFocusSettings.GlowIntensity.self, key: Key.glowIntensity) ?? fallback.glowIntensity,
-            vibration: load(NeonFocusSettings.Vibration.self, key: Key.vibration) ?? fallback.vibration
+            vibration: load(NeonFocusSettings.Vibration.self, key: Key.vibration) ?? fallback.vibration,
+            trackedTerminalApps: loadTrackedTerminalApps() ?? fallback.trackedTerminalApps
         )
     }
 
@@ -257,6 +287,12 @@ struct NeonFocusSettingsStore {
         defaults.set(settings.pulseSpeed.rawValue, forKey: Key.pulseSpeed)
         defaults.set(settings.glowIntensity.rawValue, forKey: Key.glowIntensity)
         defaults.set(settings.vibration.rawValue, forKey: Key.vibration)
+        defaults.set(
+            NeonFocusSettings.TerminalApp.allCases
+                .filter(settings.trackedTerminalApps.contains)
+                .map(\.rawValue),
+            forKey: Key.trackedTerminalApps
+        )
     }
 
     private func load<Value: RawRepresentable>(
@@ -265,5 +301,11 @@ struct NeonFocusSettingsStore {
     ) -> Value? where Value.RawValue == String {
         guard let rawValue = defaults.string(forKey: key) else { return nil }
         return Value(rawValue: rawValue)
+    }
+
+    private func loadTrackedTerminalApps() -> Set<NeonFocusSettings.TerminalApp>? {
+        guard defaults.object(forKey: Key.trackedTerminalApps) != nil else { return nil }
+        let rawValues = defaults.stringArray(forKey: Key.trackedTerminalApps) ?? []
+        return Set(rawValues.compactMap(NeonFocusSettings.TerminalApp.init(rawValue:)))
     }
 }

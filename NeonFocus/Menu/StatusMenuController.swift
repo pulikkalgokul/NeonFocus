@@ -15,6 +15,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private var pulseSpeedItems: [NeonFocusSettings.PulseSpeed: NSMenuItem] = [:]
     private var glowItems: [NeonFocusSettings.GlowIntensity: NSMenuItem] = [:]
     private var vibrationItems: [NeonFocusSettings.Vibration: NSMenuItem] = [:]
+    private var terminalAppItems: [NeonFocusSettings.TerminalApp: NSMenuItem] = [:]
 
     #if DEBUG
     private var debugStandaloneMenu: NSMenu?
@@ -64,6 +65,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         pulseSpeedItems = [:]
         glowItems = [:]
         vibrationItems = [:]
+        terminalAppItems = [:]
         #if DEBUG
         debugStandaloneMenu = nil
         #endif
@@ -94,6 +96,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.addItem(makePulseSpeedMenu())
         menu.addItem(makeGlowMenu())
         menu.addItem(makeVibrationMenu())
+        menu.addItem(makeTerminalAppsMenu())
 
         menu.addItem(NSMenuItem.separator())
 
@@ -160,6 +163,20 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             let vibration = NeonFocusSettings.Vibration(rawValue: rawValue)
         else { return }
         settings.vibration = vibration
+        publishSettingsChange()
+    }
+
+    @objc private func toggleTerminalApp(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let terminalApp = NeonFocusSettings.TerminalApp(rawValue: rawValue)
+        else { return }
+
+        if settings.trackedTerminalApps.contains(terminalApp) {
+            settings.trackedTerminalApps.remove(terminalApp)
+        } else {
+            settings.trackedTerminalApps.insert(terminalApp)
+        }
         publishSettingsChange()
     }
 
@@ -253,6 +270,24 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         return item
     }
 
+    private func makeTerminalAppsMenu() -> NSMenuItem {
+        let item = NSMenuItem(title: "Terminal Apps", action: nil, keyEquivalent: "")
+        let submenu = NSMenu(title: "Terminal Apps")
+        terminalAppItems = Dictionary(
+            uniqueKeysWithValues: NeonFocusSettings.TerminalApp.allCases.map { terminalApp in
+                let menuItem = makeOptionItem(
+                    title: terminalApp.title,
+                    rawValue: terminalApp.rawValue,
+                    action: #selector(toggleTerminalApp)
+                )
+                submenu.addItem(menuItem)
+                return (terminalApp, menuItem)
+            }
+        )
+        item.submenu = submenu
+        return item
+    }
+
     private func makeOptionItem(
         title: String,
         rawValue: String,
@@ -275,6 +310,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         updateStates(items: pulseSpeedItems, selected: settings.pulseSpeed)
         updateStates(items: glowItems, selected: settings.glowIntensity)
         updateStates(items: vibrationItems, selected: settings.vibration)
+        updateTerminalAppItemStates()
     }
 
     private func updateStates<Option: Hashable>(
@@ -283,6 +319,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     ) {
         for (option, item) in items {
             item.state = option == selected ? .on : .off
+        }
+    }
+
+    private func updateTerminalAppItemStates() {
+        for (terminalApp, item) in terminalAppItems {
+            item.state = settings.trackedTerminalApps.contains(terminalApp) ? .on : .off
         }
     }
 }

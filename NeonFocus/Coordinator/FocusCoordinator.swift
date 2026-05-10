@@ -31,9 +31,11 @@ final class FocusCoordinator {
             self.overlaySettings = settings
             self.settingsStore.save(settings)
             self.overlay.apply(settings: settings)
+            self.activeAppMonitor.trackedTerminalApps = settings.trackedTerminalApps
         }
         statusMenu.onQuit = { NSApp.terminate(nil) }
         overlay.apply(settings: overlaySettings)
+        activeAppMonitor.trackedTerminalApps = overlaySettings.trackedTerminalApps
         statusMenu.install(enabled: isEnabled, settings: overlaySettings)
 
         // Triggers the system prompt the very first time NeonFocus runs.
