@@ -3,6 +3,8 @@
 A tiny macOS menu-bar utility that draws a configurable neon halo around
 whichever selected terminal app window currently has keyboard focus.
 
+<img width="1107" height="676" alt="Screenshot 2026-05-10 at 8 57 27 PM" src="https://github.com/user-attachments/assets/c110ed75-57e1-4584-aee2-f7dd6a72409a" />
+
 ```
 ┌──────────┐  ┌──────────┐  ┌──────────┐
 │ api      │  │ dotfiles │  │ notes    │   ← terminal app windows
