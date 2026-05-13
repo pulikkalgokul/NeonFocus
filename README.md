@@ -139,3 +139,7 @@ NeonFocusApp ──► AppDelegate ──► FocusCoordinator ──┬── Ac
 - **Curated terminal apps only.** Arbitrary app selection is intentionally not
   exposed; new terminal apps should be added to the curated list after AX
   behavior validation.
+
+## License
+
+[MIT](LICENSE)
