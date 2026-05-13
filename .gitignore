@@ -22,3 +22,7 @@ Package.resolved
 
 # Internal design notes (not part of the public project)
 design-bundle/
+
+# Local-only maintainer release script (contains personal Apple ID + work-account
+# leak-guard patterns that shouldn't be public).
+scripts/release.sh

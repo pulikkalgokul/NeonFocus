@@ -19,13 +19,27 @@ whichever selected terminal app window currently has keyboard focus.
 v0.1.0 — curated terminal-app support with menu-bar controls for app selection,
 color, thickness, pulse speed, glow intensity, and focus-burst vibration.
 
-## Prerequisites
+## Install
+
+```bash
+brew install --cask pulikkalgokul/tap/neonfocus
+```
+
+That's it — Homebrew downloads the notarized build from the [latest
+release](https://github.com/pulikkalgokul/NeonFocus/releases) and installs it
+into `/Applications`. Launch it from Spotlight or `/Applications/NeonFocus.app`.
+
+To update later: `brew upgrade --cask neonfocus`.
+
+## Build from source
+
+### Prerequisites
 
 - macOS 14+
 - Xcode 16+ (the project was generated against Xcode 26.3)
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen`
 
-## Build & run
+### Build & run
 
 ```bash
 cd ShowFocus
@@ -50,6 +64,13 @@ Run the unit tests with:
 ```bash
 xcodebuild -project NeonFocus.xcodeproj -scheme NeonFocus -destination "platform=macOS,arch=$(uname -m)" test
 ```
+
+### Cutting a release
+
+The release pipeline (Developer ID signing → Apple notarization → stapling →
+GitHub release → cask bump in [the tap repo](https://github.com/pulikkalgokul/homebrew-tap))
+is run from a maintainer's machine and is not part of the public source tree.
+See `scripts/ExportOptions.plist` for the export config used.
 
 ## First-run permission
 
@@ -104,6 +125,3 @@ NeonFocusApp ──► AppDelegate ──► FocusCoordinator ──┬── Ac
 - **Curated terminal apps only.** Arbitrary app selection is intentionally not
   exposed; new terminal apps should be added to the curated list after AX
   behavior validation.
-- **Not signed.** Local debug builds run under ad-hoc signing; distribution
-  via Homebrew cask requires a Developer ID + notarization (see
-  `design-bundle/chats/chat1.md` for the path).
