@@ -31,6 +31,20 @@ into `/Applications`. Launch it from Spotlight or `/Applications/NeonFocus.app`.
 
 To update later: `brew upgrade --cask neonfocus`.
 
+## Uninstall
+
+```bash
+brew uninstall --cask neonfocus
+```
+
+To also remove the persisted preferences plist (`~/Library/Preferences/com.gokul.NeonFocus.plist`):
+
+```bash
+brew uninstall --cask --zap neonfocus
+```
+
+The Accessibility grant remains in **System Settings → Privacy & Security → Accessibility** — remove the NeonFocus entry there to revoke it.
+
 ## Build from source
 
 ### Prerequisites
